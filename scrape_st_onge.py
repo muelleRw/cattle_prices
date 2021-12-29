@@ -3,6 +3,9 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
 import pandas as pd
+from urllib.parse import urlparse
+import os
+
 sale_list = "http://www.stongelivestock.com/index.cfm?show=10&mid=16"
 
 sale_list_page = requests.get(sale_list)
@@ -20,3 +23,22 @@ for p in p_tags:
                 "link": link
             }
             links.append(record)
+
+
+base = "http://www.stongelivestock.com/"
+bad_links = []
+#links = pd.read_csv("bad_links.csv").to_dict(orient='records')
+i=0
+for link in links:
+    print(i)
+    i += 1
+    try:
+        sale_report = base + link["link"]
+        response = requests.get(sale_report)
+        with open('st_onge_pdf/' + os.path.basename(urlparse(link['link']).path), 'wb') as f:
+            f.write(response.content)
+
+    except Exception as e:
+        bad_links.append(link)
+        print(e)
+        print(link["link"])
